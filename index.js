@@ -10,12 +10,13 @@ const srcFolder = './src/credentials.txt';
 async function robo(pass, user) {
     // Configurações gerais do robô
     const browser = await puppeteer.launch({ headless: false });
+    
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
     
     try {
         // Abrindo a página
-        await page.goto(`${baseUrl}`);
+        const response = await page.goto(`${baseUrl}`);
         await page.setCacheEnabled(false);
 
         //Preencher campo de usuário
@@ -27,13 +28,21 @@ async function robo(pass, user) {
         let inputPass = await page.waitForSelector('input[id=form-input--password]');
         await inputPass.type(pass);
         await page.click('button[type="submit"]');
-        
-        // let userExists = await page.evaluate(() => {
-        //     let el = document.querySelector('#form-alert--error-usersearch');
-        //     return el ? "Não" : "Sim";
-        // });
 
-        // await browser.close();
+        //Esperando logar
+        await page.waitForNavigation();
+
+        //Esperando o campo de pontos carregar
+        await page.waitForSelector('div[id=info-box-points]');
+
+        let points = await page.$eval('div[id=info-box-points]', el => el.textContent);
+
+        let pointsNormalized = points.replace(/^\s+|\s+$/g, "");
+        await browser.close();
+
+        console.log(pointsNormalized);
+
+        return pointsNormalized;
     } catch (error) {
         await browser.close();
         console.log(error)
@@ -43,7 +52,7 @@ async function robo(pass, user) {
 };
 
 // robo('11111', '47548914814');
-robo('Bru23600', '01839331763');
+robo('007192pe', '71187677272');
 
 
 
