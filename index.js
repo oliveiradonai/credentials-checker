@@ -16,7 +16,7 @@ async function robo(pass, user) {
     
     try {
         // Abrindo a página
-        const response = await page.goto(`${baseUrl}`);
+        await page.goto(`${baseUrl}`, { waitUntil: "networkidle0" });
         await page.setCacheEnabled(false);
 
         //Preencher campo de usuário
@@ -37,7 +37,7 @@ async function robo(pass, user) {
 
         let points = await page.$eval('div[id=info-box-points]', el => el.textContent);
 
-        let pointsNormalized = points.replace(/^\s+|\s+$/g, "");
+        let pointsNormalized = points.replace(/(\r\n|\n|\r)/gm, "");
         await browser.close();
 
         console.log(pointsNormalized);
@@ -52,7 +52,7 @@ async function robo(pass, user) {
 };
 
 // robo('11111', '47548914814');
-robo('007192pe', '71187677272');
+robo('Bru23600', '01839331763');
 
 
 
