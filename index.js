@@ -15,35 +15,38 @@ async function robo(pass, user) {
     
     try {
         // Abrindo a página
-        const response = await page.goto(`${baseUrl}`);
+        await page.goto(`${baseUrl}`);
         await page.setCacheEnabled(false);
 
         //Preencher campo de usuário
         let inputUser = await page.waitForSelector('input[id=form-input--alias]');
         await inputUser.type(user);
+        await page.click('button[type="submit"]');        
+        
+        // Preencher campo de senha
+        let inputPass = await page.waitForSelector('input[id=form-input--password]');
+        await inputPass.type(pass);
         await page.click('button[type="submit"]');
         
-        let userExists = await page.evaluate(() => {
-            let el = document.querySelector('#form-alert--error-usersearch');
-            return el ? "Não" : "Sim";
-        });
-        
-        //Preencher campo de senha
-        // await inputPass.type(pass);
-        // let userExists = await page.click('button[type="submit"]');
+        // let userExists = await page.evaluate(() => {
+        //     let el = document.querySelector('#form-alert--error-usersearch');
+        //     return el ? "Não" : "Sim";
+        // });
 
         // await browser.close();
-
-        console.log(userExists);
-
-        // return response.status();
     } catch (error) {
         await browser.close();
         console.log(error)
-
+        
         return 'Ocorreu um erro ao verificar a URL';
     }
 };
+
+// robo('11111', '47548914814');
+robo('Bru23600', '01839331763');
+
+
+
 
 // Função para ler o arquivo das credenciais
 // async function handleReadFile() {
@@ -95,6 +98,3 @@ async function robo(pass, user) {
 // }
 
 // handleReadFile();
-
-robo('11111', '47548914814');
-// robo('11111', '01839331763');
