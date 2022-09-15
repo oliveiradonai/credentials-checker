@@ -10,24 +10,22 @@ const srcFolder = './src/credentials.txt';
 async function robo(pass, user) {
     // Configurações gerais do robô
     const browser = await puppeteer.launch({ headless: false });
-    
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
     
     try {
-        // Abrindo a página
+        // Abrindo a página        
         await page.goto(`${baseUrl}`, { waitUntil: "networkidle0" });
-        await page.setCacheEnabled(false);
 
         //Preencher campo de usuário
         let inputUser = await page.waitForSelector('input[id=form-input--alias]');
-        await inputUser.type(user);
-        await page.click('button[type="submit"]');        
+        await inputUser.type(user, {delay: 100});
+        await page.keyboard.press('Enter');  
         
         // Preencher campo de senha
         let inputPass = await page.waitForSelector('input[id=form-input--password]');
-        await inputPass.type(pass);
-        await page.click('button[type="submit"]');
+        await inputPass.type(pass, {delay: 100});
+        await page.keyboard.press('Enter');
 
         //Esperando logar
         await page.waitForNavigation();
@@ -38,6 +36,7 @@ async function robo(pass, user) {
         let points = await page.$eval('div[id=info-box-points]', el => el.textContent);
 
         let pointsNormalized = points.replace(/(\r\n|\n|\r)/gm, "");
+        
         await browser.close();
 
         console.log(pointsNormalized);
