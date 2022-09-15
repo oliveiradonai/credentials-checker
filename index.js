@@ -2,29 +2,32 @@ const puppeteer = require('puppeteer');
 const fsPromises = require('fs').promises;
 const fs = require('fs');
 const readline = require('readline');
+const agents = require('./agents.json');
 
 const baseUrl = 'https://www.pontosmultiplus.com.br/portal/';
 const srcFolder = './src/credentials.txt';
 
 // Função que roda o robô
 async function robo(pass, user) {
+    const randomAgents = agents[Math.floor(Math.random() * agents.length)];
+
     // Configurações gerais do robô
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
-    
+    await page.setUserAgent(randomAgents);
+
     try {
         // Abrindo a página        
         await page.goto(`${baseUrl}`, { waitUntil: "networkidle0" });
 
         //Preencher campo de usuário
         let inputUser = await page.waitForSelector('input[id=form-input--alias]');
-        await inputUser.type(user, {delay: 100});
-        await page.keyboard.press('Enter');  
-        
+        await inputUser.type(user, { delay: 100 });
+        await page.keyboard.press('Enter');
+
         // Preencher campo de senha
         let inputPass = await page.waitForSelector('input[id=form-input--password]');
-        await inputPass.type(pass, {delay: 100});
+        await inputPass.type(pass, { delay: 100 });
         await page.keyboard.press('Enter');
 
         //Esperando logar
@@ -36,7 +39,7 @@ async function robo(pass, user) {
         let points = await page.$eval('div[id=info-box-points]', el => el.textContent);
 
         let pointsNormalized = points.replace(/(\r\n|\n|\r)/gm, "");
-        
+
         await browser.close();
 
         console.log(pointsNormalized);
@@ -45,7 +48,7 @@ async function robo(pass, user) {
     } catch (error) {
         await browser.close();
         console.log(error)
-        
+
         return 'Ocorreu um erro ao verificar a URL';
     }
 };
